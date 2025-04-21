@@ -18,10 +18,13 @@ class StockQuotes(models.Model):
     low_price = models.DecimalField(max_digits=10, decimal_places=4)
     number_of_trades = models.BigIntegerField(null=True, blank=True)
     volume = models.BigIntegerField()
-    volume_weighted_average = models.DecimalField(max_digits=10, decimal_places=6)
+    volume_weighted_average = models.DecimalField(max_digits=10, decimal_places=6,null=True, blank=True)
     time = TimescaleDateTimeField(interval="1 week") 
     
 
-    # objects = models.Manager()
+    objects = models.Manager()
     timescale = TimescaleManager()
+
+    class Meta:
+        unique_together = [("company", "time")]
     
