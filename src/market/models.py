@@ -10,6 +10,10 @@ class Company(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        self.ticker = self.ticker.upper()
+        super().save(*args, **kwargs)
+
 class StockQuotes(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="stock_quotes")
     open_price = models.DecimalField(max_digits=10, decimal_places=4)
