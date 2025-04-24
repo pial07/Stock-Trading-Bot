@@ -1,7 +1,9 @@
+from celery import shared_task
 from django.apps import apps
 from .utils import batch_insert_stock_data
 import helpers.client as helper_clients 
 
+@shared_task
 def sync_company_stock_quotes(company_id,function="TIME_SERIES_INTRADAY", interval="1min", month="2024-02", verbose=False):
     Company = apps.get_model('market', 'Company')
     try:
@@ -24,8 +26,9 @@ def sync_company_stock_quotes(company_id,function="TIME_SERIES_INTRADAY", interv
         print(f"Dataset length {len(dataset)}")
     batch_insert_stock_data(company_obj=company_obj, dataset=dataset,verbose=verbose)
 
+@shared_task
 def sync_stock_data():
     Company = apps.get_model('market', 'Company')
     companies = Company.objects.filter(active=True).values_list('id',flat=True)
     for company_id in companies:
-        sync_company_stock_quotes(company_id)
+        sync_company_stock_quotes.delay(company_id)

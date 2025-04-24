@@ -1,7 +1,7 @@
 from django.db import models
 from timescale.db.models.fields import TimescaleDateTimeField
 from timescale.db.models.managers import TimescaleManager
-
+from . import tasks
 class Company(models.Model):
     name = models.CharField(max_length=120)
     ticker = models.CharField(max_length=20, unique=True, db_index=True)
@@ -13,6 +13,7 @@ class Company(models.Model):
     def save(self, *args, **kwargs):
         self.ticker = self.ticker.upper()
         super().save(*args, **kwargs)
+        tasks.sync_company_stock_quotes.delay(self.pk)
 
 class StockQuotes(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="stock_quotes")
